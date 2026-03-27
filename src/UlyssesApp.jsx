@@ -21,6 +21,9 @@ import FreytagPyramid from '../img/FreytagPyramid.png';
 import Duality from '../img/duality.png';
 import DublinStreet from '../img/DublinStreet.jpg';
 
+const DEB_LINKEDIN_URL =
+  'https://www.linkedin.com/in/john-dave-maca-068116358?utm_source=share_via&utm_content=profile&utm_medium=member_android';
+
 const UlyssesApp = () => {
   const [activeTab, setActiveTab] = useState('intro');
 
@@ -64,7 +67,16 @@ const UlyssesApp = () => {
           </ul>
         </div>
         <div className="text-xs text-slate-600 text-center">
-          Interactive Literature Report <br /> Bloomsday 1904
+          Interactive Literature Report <br /> Bloomsday 1904 <br /> <br /> Dedicated to Joyce Sarong's Report <br /> Site by [
+          <a
+            href={DEB_LINKEDIN_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline underline-offset-2 hover:text-slate-300"
+          >
+            deb
+          </a>
+          ]
         </div>
       </nav>
 
