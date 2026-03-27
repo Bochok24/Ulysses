@@ -16,6 +16,10 @@ import {
 
 import JamesJoycePortrait from '../img/JamesJoycePortrait.jpg';
 import DublinMap from '../img/DublinMap.webp';
+import UlyssesBook from '../img/Ulysses_Book.png';
+import FreytagPyramid from '../img/FreytagPyramid.png';
+import Duality from '../img/duality.png';
+import DublinStreet from '../img/DublinStreet.jpg';
 
 const UlyssesApp = () => {
   const [activeTab, setActiveTab] = useState('intro');
@@ -67,12 +71,12 @@ const UlyssesApp = () => {
       {/* SLIDING/SCROLLING MAIN CONTENT AREA */}
       <main className="flex-1 md:ml-64 h-screen overflow-y-auto p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] relative scroll-smooth">
         {/* Mobile Nav (Visible only on small screens) */}
-        <div className="md:hidden flex overflow-x-auto space-x-2 mb-8 pb-2 border-b border-slate-700 sticky top-0 bg-slate-900/95 z-50 backdrop-blur-sm">
+        <div className="md:hidden flex flex-wrap gap-2 mb-8 pb-3 border-b border-slate-700 sticky top-0 bg-slate-900/95 z-50 backdrop-blur-sm">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-shrink-0 flex items-center space-x-2 px-4 py-2 rounded-full text-sm ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm ${
                 activeTab === tab.id
                   ? 'bg-amber-500 text-slate-900'
                   : 'bg-slate-800 text-slate-400'
@@ -117,12 +121,14 @@ const IntroSection = () => (
     </h2>
 
     <div className="mb-8">
-      <img
-        src={JamesJoycePortrait}
-        alt="Portrait of James Joyce"
-        className="w-full h-64 object-cover rounded-lg border border-slate-700"
-        loading="lazy"
-      />
+      <div className="mx-auto w-full max-w-xs aspect-[3/4] bg-slate-950 rounded-lg border border-slate-700 overflow-hidden">
+        <img
+          src={JamesJoycePortrait}
+          alt="Portrait of James Joyce"
+          className="w-full h-full object-contain"
+          loading="lazy"
+        />
+      </div>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -331,7 +337,14 @@ const PlotSection = () => {
       <p className="text-slate-400 mb-8 pb-4 border-b border-slate-700">Tracing the plot of a single day.</p>
 
       <div className="mb-10">
-        <ImagePlaceholder text="[ Insert visual diagram of Freytag's Pyramid here ]" className="h-48" />
+        <div className="w-full h-48 bg-slate-950 rounded-lg border border-slate-700 overflow-hidden">
+          <img
+            src={FreytagPyramid}
+            alt="Freytag's Pyramid diagram"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
       </div>
 
       <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-600 before:to-transparent">
@@ -355,6 +368,8 @@ const PlotSection = () => {
 };
 
 const MapSection = () => {
+  const [activePointId, setActivePointId] = useState(null);
+
   const mapPoints = [
     { id: 1, top: '15%', left: '85%', title: 'Martello Tower', desc: "8:00 AM - Stephen's morning begins here by the sea." },
     { id: 2, top: '35%', left: '45%', title: '7 Eccles Street', desc: "8:00 AM - Bloom's home. He leaves and avoids returning all day." },
@@ -366,47 +381,99 @@ const MapSection = () => {
     { id: 8, top: '45%', left: '65%', title: 'Nighttown', desc: 'Midnight - The brothel district where the climax occurs.' },
   ];
 
+  const parsePct = (value) => {
+    const num = Number(String(value).replace('%', ''));
+    return Number.isFinite(num) ? num : 50;
+  };
+
   return (
     <div className="animate-fade-in-up">
       <h2 className="text-4xl font-serif font-bold text-amber-400 mb-2">Virtual Map: Dublin 1904</h2>
       <p className="text-slate-400 mb-8 pb-4 border-b border-slate-700">Hover over the map markers to trace the characters' paths.</p>
 
       {/* VIRTUAL MAP CONTAINER */}
-      <div className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-slate-800 rounded-xl border-2 border-slate-700 overflow-hidden shadow-2xl">
-        <img
-          src={DublinMap}
-          alt="Dublin map"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          loading="lazy"
-        />
-        {/* Map Background Placeholder */}
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cartographer.png')] z-10" />
+      <div
+        className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-slate-800 rounded-xl border-2 border-slate-700 overflow-visible shadow-2xl"
+        onClick={() => setActivePointId(null)}
+      >
+        {/* Clipped map layer (keeps rounded corners) */}
+        <div className="absolute inset-0 rounded-xl overflow-hidden z-0">
+          <img
+            src={DublinMap}
+            alt="Dublin map"
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+          {/* Map Background Placeholder */}
+          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cartographer.png')]" />
+        </div>
 
         {/* Render Map Points */}
-        {mapPoints.map((point) => (
-          <div
-            key={point.id}
-            className="absolute group z-20"
-            style={{ top: point.top, left: point.left, transform: 'translate(-50%, -50%)' }}
-          >
-            {/* The Pin */}
-            <div className="relative">
-              <MapPin
-                className="text-amber-500 drop-shadow-md cursor-pointer animate-bounce group-hover:animate-none group-hover:text-amber-300 transition-colors"
-                size={32}
-              />
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-1 bg-black/50 rounded-full blur-[2px]" />
-            </div>
+        {mapPoints.map((point) => {
+          const leftPct = parsePct(point.left);
+          const topPct = parsePct(point.top);
+          const isActive = activePointId === point.id;
 
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 bg-slate-900 border border-amber-500/50 rounded-lg p-3 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30 pointer-events-none">
-              <h4 className="font-bold text-amber-400 text-sm mb-1 leading-tight">{point.title}</h4>
-              <p className="text-slate-300 text-xs leading-snug">{point.desc}</p>
-              {/* Tooltip Arrow */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+          const placement = topPct < 18 ? 'below' : 'above';
+          const align = leftPct < 18 ? 'left' : leftPct > 82 ? 'right' : 'center';
+
+          const placementClass = placement === 'below' ? 'top-full mt-3' : 'bottom-full mb-3';
+          const alignClass =
+            align === 'left'
+              ? 'left-0'
+              : align === 'right'
+                ? 'right-0'
+                : 'left-1/2 -translate-x-1/2';
+
+          const visibilityClass = isActive
+            ? 'opacity-100 visible'
+            : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible';
+
+          const arrowPlacementClass = placement === 'below' ? 'bottom-full border-b-slate-900' : 'top-full border-t-slate-900';
+          const arrowAlignClass =
+            align === 'left'
+              ? 'left-6'
+              : align === 'right'
+                ? 'right-6'
+                : 'left-1/2 -translate-x-1/2';
+
+          return (
+            <div
+              key={point.id}
+              className="absolute group z-20"
+              style={{ top: point.top, left: point.left, transform: 'translate(-50%, -50%)' }}
+            >
+              {/* The Pin */}
+              <button
+                type="button"
+                aria-label={point.title}
+                className="relative"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActivePointId((curr) => (curr === point.id ? null : point.id));
+                }}
+              >
+                <MapPin
+                  className="text-red-500 drop-shadow-md cursor-pointer animate-bounce group-hover:animate-none group-hover:text-red-300 transition-colors"
+                  size={32}
+                />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-1 bg-black/50 rounded-full blur-[2px]" />
+              </button>
+
+              {/* Tooltip */}
+              <div
+                className={`absolute ${placementClass} ${alignClass} w-48 bg-slate-900 border border-amber-500/50 rounded-lg p-3 shadow-xl ${visibilityClass} transition-all duration-300 z-30 pointer-events-none`}
+              >
+                <h4 className="font-bold text-amber-400 text-sm mb-1 leading-tight">{point.title}</h4>
+                <p className="text-slate-300 text-xs leading-snug">{point.desc}</p>
+                {/* Tooltip Arrow */}
+                <div
+                  className={`absolute ${arrowPlacementClass} ${arrowAlignClass} border-4 border-transparent`}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -442,9 +509,11 @@ const PillarsSection = () => {
       <p className="text-slate-400 mb-8 pb-4 border-b border-slate-700">The 5 pillars for understanding Ulysses.</p>
 
       <div className="mb-8">
-        <ImagePlaceholder
-          text="[ Insert thematic abstract artwork or Dublin street photo here ]"
-          className="h-40"
+        <img
+          src={DublinStreet}
+          alt="Dublin street"
+          className="w-full h-40 object-cover rounded-lg border border-slate-700"
+          loading="lazy"
         />
       </div>
 
@@ -474,10 +543,14 @@ const BanSection = () => (
     <p className="text-slate-400 mb-8 pb-4 border-b border-slate-700">Why the masterpiece was deemed illegal.</p>
 
     <div className="mb-8">
-      <ImagePlaceholder
-        text="[ Insert photo of Judge John M. Woolsey or an original censored cover here ]"
-        className="h-48"
-      />
+      <div className="mx-auto w-full max-w-xs aspect-[3/4] bg-slate-950/60 rounded-lg border border-red-900/50 overflow-hidden">
+        <img
+          src={UlyssesBook}
+          alt="Ulysses book cover"
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
     </div>
 
     <div className="bg-red-950/30 border-2 border-red-900/50 rounded-xl p-8 relative overflow-hidden">
@@ -531,9 +604,11 @@ const ThemesConflictSection = () => (
     <p className="text-slate-400 mb-8 pb-4 border-b border-slate-700">The internal struggles and overarching messages of the novel.</p>
 
     <div className="mb-8">
-      <ImagePlaceholder
-        text="[ Insert symbolic image of Dublin streets or dual character portraits ]"
-        className="h-48"
+      <img
+        src={Duality}
+        alt="Dual character portraits"
+        className="w-full h-48 object-cover rounded-lg border border-slate-700"
+        loading="lazy"
       />
     </div>
 
