@@ -12,6 +12,8 @@ import {
   Image as ImageIcon,
   MapPin,
   Target,
+  Menu,
+  X,
 } from 'lucide-react';
 
 import JamesJoycePortrait from '../img/JamesJoycePortrait.jpg';
@@ -26,6 +28,7 @@ const DEB_LINKEDIN_URL =
 
 const UlyssesApp = () => {
   const [activeTab, setActiveTab] = useState('intro');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const tabs = [
     { id: 'intro', label: 'Timeline & Author', icon: <Clock size={20} /> },
@@ -38,67 +41,87 @@ const UlyssesApp = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-slate-900 text-slate-200 font-sans selection:bg-amber-500 selection:text-slate-900 overflow-hidden">
-      {/* STATIC SIDEBAR NAVIGATION */}
-      <nav className="fixed inset-y-0 left-0 w-64 bg-slate-950 border-r border-slate-800 p-6 flex-col justify-between hidden md:flex z-50">
-        <div>
-          <div className="mb-10 text-center">
-            <h1 className="text-3xl font-bold text-amber-500 font-serif tracking-wider">
-              ULYSSES
-            </h1>
-            <p className="text-sm text-slate-400 mt-2">by James Joyce</p>
-          </div>
-          <ul className="space-y-4">
-            {tabs.map((tab) => (
-              <li key={tab.id}>
-                <button
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
-                    activeTab === tab.id
-                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
-                      : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-                  }`}
-                >
-                  {tab.icon}
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="text-xs text-slate-600 text-center">
-          Interactive Literature Report <br /> Bloomsday 1904 <br /> <br /> Dedicated to Joyce Sarong's Report <br /> Site by [
-          <a
-            href={DEB_LINKEDIN_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="underline underline-offset-2 hover:text-slate-300"
-          >
-            deb
-          </a>
-          ]
-        </div>
-      </nav>
+    <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-amber-500 selection:text-slate-900">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm">
+        <div className="px-4 md:px-8 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-amber-500 font-serif tracking-wider leading-none">
+                ULYSSES
+              </h1>
+              <p className="text-xs md:text-sm text-slate-400 mt-1">
+                by James Joyce
+              </p>
+            </div>
 
-      {/* SLIDING/SCROLLING MAIN CONTENT AREA */}
-      <main className="flex-1 md:ml-64 h-screen overflow-y-auto p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] relative scroll-smooth">
-        {/* Mobile Nav (Visible only on small screens) */}
-        <div className="md:hidden flex flex-wrap gap-2 mb-8 pb-3 border-b border-slate-700 sticky top-0 bg-slate-900/95 z-50 backdrop-blur-sm">
-          {tabs.map((tab) => (
+            {/* Mobile hamburger */}
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm ${
-                activeTab === tab.id
-                  ? 'bg-amber-500 text-slate-900'
-                  : 'bg-slate-800 text-slate-400'
-              }`}
+              type="button"
+              className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((v) => !v)}
             >
-              {tab.icon}
-              <span>{tab.label}</span>
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-          ))}
+
+            {/* Desktop navigation */}
+            <nav className="hidden md:flex flex-wrap justify-end gap-1">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={
+                      isActive
+                        ? 'flex items-center space-x-2 px-4 py-2 rounded-full text-sm bg-amber-500 text-slate-900'
+                        : 'flex items-center space-x-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800/60 hover:text-slate-100'
+                    }
+                  >
+                    {tab.icon}
+                    <span className="whitespace-nowrap">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Mobile dropdown menu */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden mt-3 border-t border-slate-800 pt-3">
+              <div className="flex flex-col gap-1">
+                {tabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={
+                        isActive
+                          ? 'flex items-center space-x-3 px-3 py-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                          : 'flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/60 hover:text-slate-100'
+                      }
+                    >
+                      {tab.icon}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+          )}
         </div>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main className="p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] relative scroll-smooth">
 
         <div className="max-w-5xl mx-auto pb-20">
           {activeTab === 'intro' && <IntroSection />}
@@ -110,6 +133,22 @@ const UlyssesApp = () => {
           {activeTab === 'ban' && <BanSection />}
         </div>
       </main>
+
+      {/* FOOTER (Normal document flow; visible when scrolled down) */}
+      <footer className="border-t border-slate-800 bg-slate-950">
+        <div className="max-w-5xl mx-auto px-8 py-10 text-xs text-slate-600 text-center">
+          Interactive Literature Report <br /> Bloomsday 1904 <br /> <br /> Dedicated to Joyce Sarong's Report <br /> Site by [
+          <a
+            href={DEB_LINKEDIN_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline underline-offset-2 hover:text-slate-300"
+          >
+            deb
+          </a>
+          ]
+        </div>
+      </footer>
     </div>
   );
 };
