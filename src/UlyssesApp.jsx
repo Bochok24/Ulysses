@@ -421,20 +421,61 @@ const PlotSection = () => {
 const MapSection = () => {
   const [activePointId, setActivePointId] = useState(null);
 
-  const mapPoints = [
-    { id: 1, top: '15%', left: '85%', title: 'Martello Tower', desc: "8:00 AM - Stephen's morning begins here by the sea." },
-    { id: 2, top: '35%', left: '45%', title: '7 Eccles Street', desc: "8:00 AM - Bloom's home. He leaves and avoids returning all day." },
-    { id: 3, top: '25%', left: '40%', title: 'Glasnevin Cemetery', desc: "11:00 AM - Paddy Dignam's funeral takes place." },
-    { id: 4, top: '55%', left: '55%', title: 'National Library', desc: '2:00 PM - Stephen discusses his Shakespeare theories.' },
-    { id: 5, top: '65%', left: '50%', title: "Barney Kiernan's Pub", desc: "5:00 PM - Bloom confronts 'The Citizen'." },
-    { id: 6, top: '80%', left: '75%', title: 'Sandymount Strand', desc: '8:00 PM - Bloom encounters Gerty MacDowell on the beach.' },
-    { id: 7, top: '50%', left: '60%', title: 'Maternity Hospital', desc: '10:00 PM - Bloom meets Stephen while visiting Mina Purefoy.' },
-    { id: 8, top: '45%', left: '65%', title: 'Nighttown', desc: 'Midnight - The brothel district where the climax occurs.' },
-  ];
+  const isDev = import.meta?.env?.DEV;
+  const loggerAvailable =
+    !!isDev ||
+    (typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('logger') === '1');
+
+  const [mapPoints, setMapPoints] = useState([
+    { id: 1, top: '7.01%', left: '94.55%', title: 'Martello Tower', desc: "8:00 AM - Stephen's morning begins here by the sea." },
+    { id: 2, top: '5.90%', left: '30.62%', title: '7 Eccles Street', desc: "8:00 AM - Bloom's home. He leaves and avoids returning all day." },
+    { id: 3, top: '4.58%', left: '91.33%', title: 'Glasnevin Cemetery', desc: "11:00 AM - Paddy Dignam's funeral takes place." },
+    { id: 4, top: '80.03%', left: '44.09%', title: 'National Library', desc: '2:00 PM - Stephen discusses his Shakespeare theories.' },
+    { id: 5, top: '41.32%', left: '21.92%', title: "Barney Kiernan's Pub", desc: "5:00 PM - Bloom confronts 'The Citizen'." },
+    { id: 6, top: '8.06%', left: '92.01%', title: 'Sandymount Strand', desc: '8:00 PM - Bloom encounters Gerty MacDowell on the beach.' },
+    { id: 7, top: '89.41%', left: '64.79%', title: 'Maternity Hospital', desc: '10:00 PM - Bloom meets Stephen while visiting Mina Purefoy.' },
+    { id: 8, top: '29.06%', left: '44.55%', title: 'Nighttown', desc: 'Midnight - The brothel district where the climax occurs.' },
+  ]);
+
+  // Dev-only helpers for manually positioning markers.
+  const [loggerEnabled, setLoggerEnabled] = useState(false);
+  const [selectedPointId, setSelectedPointId] = useState(1);
+  const [lastLogged, setLastLogged] = useState(null);
 
   const parsePct = (value) => {
     const num = Number(String(value).replace('%', ''));
     return Number.isFinite(num) ? num : 50;
+  };
+
+  const pctString = (num) => `${Math.min(100, Math.max(0, num)).toFixed(2)}%`;
+
+  const logClickToPct = (e) => {
+    const container = e.currentTarget;
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const leftPct = rect.width > 0 ? (x / rect.width) * 100 : 50;
+    const topPct = rect.height > 0 ? (y / rect.height) * 100 : 50;
+
+    const result = {
+      top: pctString(topPct),
+      left: pctString(leftPct),
+      pointId: selectedPointId,
+      pointTitle: mapPoints.find((p) => p.id === selectedPointId)?.title ?? 'Unknown',
+    };
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Ulysses Map Logger] ${result.pointTitle} (id=${result.pointId}) => top: '${result.top}', left: '${result.left}'`
+    );
+    setLastLogged(result);
+
+    // Alt-click previews moving the selected marker (does not persist beyond refresh).
+    if (e.altKey) {
+      setMapPoints((prev) => prev.map((p) => (p.id === selectedPointId ? { ...p, top: result.top, left: result.left } : p)));
+    }
   };
 
   return (
@@ -442,10 +483,75 @@ const MapSection = () => {
       <h2 className="text-4xl font-serif font-bold text-amber-400 mb-2">Virtual Map: Dublin 1904</h2>
       <p className="text-slate-400 mb-8 pb-4 border-b border-slate-700">Hover over the map markers to trace the characters' paths.</p>
 
+      {loggerAvailable && (
+        <div className="mb-6 rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-amber-400">DEV: Map Marker Logger</p>
+              <p className="text-xs text-slate-400">
+                Enable this to click the map and get precise <span className="font-mono">top/left</span> %. Use <span className="font-mono">Alt+Click</span> to preview-move the selected marker.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label className="inline-flex items-center gap-2 text-xs text-slate-300 select-none">
+                <input
+                  type="checkbox"
+                  checked={loggerEnabled}
+                  onChange={(ev) => setLoggerEnabled(ev.target.checked)}
+                />
+                Enable logger
+              </label>
+
+              <label className="text-xs text-slate-300 flex items-center gap-2">
+                Marker
+                <select
+                  className="bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-xs text-slate-200"
+                  value={selectedPointId}
+                  onChange={(ev) => setSelectedPointId(Number(ev.target.value))}
+                >
+                  {mapPoints.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.id}. {p.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="rounded-lg border border-slate-700 bg-slate-950/40 p-3">
+              <p className="text-xs text-slate-400">Selected marker current position</p>
+              <p className="text-xs text-slate-200 font-mono mt-1">
+                {(() => {
+                  const point = mapPoints.find((p) => p.id === selectedPointId);
+                  return point ? `{ id: ${point.id}, top: '${point.top}', left: '${point.left}' }` : '—';
+                })()}
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-slate-700 bg-slate-950/40 p-3">
+              <p className="text-xs text-slate-400">Last logged click</p>
+              <p className="text-xs text-slate-200 font-mono mt-1">
+                {lastLogged
+                  ? `{ id: ${lastLogged.pointId}, top: '${lastLogged.top}', left: '${lastLogged.left}' }`
+                  : '—'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* VIRTUAL MAP CONTAINER */}
       <div
         className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-slate-800 rounded-xl border-2 border-slate-700 overflow-visible shadow-2xl"
-        onClick={() => setActivePointId(null)}
+        onClick={(e) => {
+          if (loggerAvailable && loggerEnabled) {
+            logClickToPct(e);
+          }
+          setActivePointId(null);
+        }}
       >
         {/* Clipped map layer (keeps rounded corners) */}
         <div className="absolute inset-0 rounded-xl overflow-hidden z-0">
