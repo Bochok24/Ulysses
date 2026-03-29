@@ -26,6 +26,9 @@ import DublinStreet from '../img/DublinStreet.jpg';
 const DEB_LINKEDIN_URL =
   'https://www.linkedin.com/in/john-dave-maca-068116358?utm_source=share_via&utm_content=profile&utm_medium=member_android';
 
+const BRITANNICA_ULYSSES_URL =
+  'https://www.britannica.com/topic/Ulysses-novel-by-Joyce';
+
 const UlyssesApp = () => {
   const [activeTab, setActiveTab] = useState('intro');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -136,17 +139,33 @@ const UlyssesApp = () => {
 
       {/* FOOTER (Normal document flow; visible when scrolled down) */}
       <footer className="border-t border-slate-800 bg-slate-950">
-        <div className="max-w-5xl mx-auto px-8 py-10 text-xs text-slate-600 text-center">
-          Interactive Literature Report <br /> Bloomsday 1904 <br /> <br /> Dedicated to Joyce Sarong's Report <br /> Site by [
-          <a
-            href={DEB_LINKEDIN_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="underline underline-offset-2 hover:text-slate-300"
-          >
-            deb
-          </a>
-          ]
+        <div className="max-w-5xl mx-auto px-8 py-10 text-xs text-slate-600">
+          <div className="text-center">
+            <h2 className="text-sm font-semibold text-slate-300">References</h2>
+            <p className="mt-2">
+              <a
+                href={BRITANNICA_ULYSSES_URL}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline underline-offset-2 hover:text-slate-300"
+              >
+                Encyclopedia Britannica — Ulysses (novel by Joyce)
+              </a>
+            </p>
+          </div>
+
+          <div className="mt-8 text-center">
+            Interactive Literature Report <br /> Bloomsday 1904 <br /> <br /> Dedicated to Joyce Sarong's Report <br /> Site by [
+            <a
+              href={DEB_LINKEDIN_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline underline-offset-2 hover:text-slate-300"
+            >
+              deb
+            </a>
+            ]
+          </div>
         </div>
       </footer>
     </div>
