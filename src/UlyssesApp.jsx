@@ -162,7 +162,7 @@ const UlyssesApp = () => {
               rel="noreferrer noopener"
               className="underline underline-offset-2 hover:text-slate-300"
             >
-              deb
+              John Dave Maca
             </a>
             ]
           </div>
